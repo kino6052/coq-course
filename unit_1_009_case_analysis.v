@@ -84,6 +84,22 @@ Proof.
   }
 Qed.
 
+Lemma n_plus_0_same_n : forall n : nat, 0 + n = n + 0.
+Proof.
+  intros.
+  Admitted.
+
+Lemma plus_n_O : forall n : nat, n = n + 0.
+Proof.
+  intros [|n].
+  {
+    reflexivity.
+  }
+  {
+    simpl. rewrite <- n_plus_0_same_n. reflexivity.
+  }
+Qed.
+
 Fixpoint beq_bool (n m: bool) : bool :=
   match n with
   | true => match m with
@@ -185,8 +201,6 @@ Proof.
   - simpl in H. rewrite -> H. reflexivity.
   - simpl in H. rewrite -> H. reflexivity.
 Qed.
-
-
 
 
 
