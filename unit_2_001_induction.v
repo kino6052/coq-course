@@ -156,6 +156,7 @@ Proof.
     - reflexivity.
     - simpl. rewrite -> IHn. reflexivity.
   }
+
   assert(forall b: bin, bin_to_nat b + 0 = bin_to_nat b). {
     intros.
     induction b.
@@ -163,11 +164,19 @@ Proof.
     - rewrite -> H. reflexivity.
     - rewrite -> H. reflexivity. 
   }
+
+  assert(forall n m: nat, S(n) + S(m) = S(S(n+m))). {
+    intros.
+    induction n.
+    - simpl. reflexivity.
+    - simpl. rewrite <- IHn. simpl. reflexivity.
+  }
+  
   intros.
   induction b.
   - simpl. reflexivity.
   - simpl. reflexivity.
-  - simpl. rewrite -> H. rewrite -> H. simpl. rewrite -> IHb. rewrite <- double_plus. simpl. rewrite -> double_plus. reflexivity.  
+  - simpl. rewrite -> H. rewrite -> H. simpl. rewrite -> IHb. rewrite <- H1. reflexivity.  
 Qed.
 
 
