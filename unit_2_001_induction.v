@@ -176,7 +176,7 @@ Proof.
   induction b.
   - simpl. reflexivity.
   - simpl. reflexivity.
-  - simpl. rewrite -> H. rewrite -> H. simpl. rewrite -> IHb. rewrite <- H1. reflexivity.  
+  - simpl. rewrite -> H. rewrite -> H. rewrite -> IHb. rewrite <- H1. reflexivity.  
 Qed.
 
 
