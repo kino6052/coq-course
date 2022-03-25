@@ -107,6 +107,68 @@ Proof.
   reflexivity. 
 Qed.
 
+Theorem plus_rearrange : forall n m p q : nat,
+  (n + m) + (p + q) = (m + n) + (p + q).
+Proof.
+  intros.
+  assert (H: n + m = m + n). {
+    intros.
+    induction n.
+    {
+      induction m. {
+        reflexivity.    
+      } {
+        simpl. rewrite <- IHm. reflexivity.    
+      }
+    }
+    {
+      simpl. rewrite -> IHn. rewrite -> plus_n_Sm. reflexivity.
+    }
+  }
+  rewrite -> H. reflexivity. Qed.
+
+Inductive bin : Type :=
+  | BZ : bin (* binary zero *)
+  | T2 : bin -> bin (* twice a binary number *)
+  | T2P1 : bin -> bin. (* twice a binary number plus 1 *)
+
+Fixpoint incr (m:bin) : bin :=
+  match m with
+  | BZ => T2P1 BZ
+  | T2 m' => T2P1 m'
+  | T2P1 m' => T2 (incr m')
+  end.
+
+Fixpoint bin_to_nat (m:bin) : nat :=
+  match m with
+  | BZ => O
+  | T2 m' => 2 * bin_to_nat m'
+  | T2P1 m' => 1 + 2 * bin_to_nat m'
+  end.
+
+Compute bin_to_nat (T2 (T2 (T2P1 BZ))).
+
+Theorem bin_commute: forall b: bin, bin_to_nat (incr b) = S (bin_to_nat b).
+Proof.
+  assert(forall n: nat, n + 0 = n). {
+    intros.
+    induction n.
+    - reflexivity.
+    - simpl. rewrite -> IHn. reflexivity.
+  }
+  assert(forall b: bin, bin_to_nat b + 0 = bin_to_nat b). {
+    intros.
+    induction b.
+    - reflexivity.
+    - rewrite -> H. reflexivity.
+    - rewrite -> H. reflexivity. 
+  }
+  intros.
+  induction b.
+  - simpl. reflexivity.
+  - simpl. reflexivity.
+  - simpl. rewrite -> H. rewrite -> H. simpl. rewrite -> IHb. rewrite <- double_plus. simpl. rewrite -> double_plus. reflexivity.  
+Qed.
 
 
 
