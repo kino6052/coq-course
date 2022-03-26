@@ -514,6 +514,173 @@ Proof.
   - rewrite H. simpl. destruct n. rewrite IHl1. reflexivity. simpl. rewrite IHl1. reflexivity.
 Qed.
 
+Fixpoint beq_natlist (l1 l2 : natlist) : bool :=
+  match l1 with
+  | nil =>
+    match l2 with
+    | nil => true
+    | h2::t2 => false
+    end
+  | h1::t1 =>
+    match l2 with
+    | nil => false
+    | h2::t2 =>
+      match beq_nat h1 h2 with
+      | true => beq_natlist t1 t2
+      | false => false
+      end
+    end
+  end. 
+
+Example test_beq_natlist1 :
+  (beq_natlist nil nil = true).
+Proof. simpl. reflexivity. Qed.
+
+Example test_beq_natlist2 :
+  beq_natlist [1;2;3] [1;2;3] = true.
+Proof. simpl. reflexivity. Qed.
+
+Example test_beq_natlist3 :
+  beq_natlist [1;2;3] [1;2;4] = false.
+Proof. simpl. reflexivity. Qed.
+
+Theorem beq_natlist_refl : forall l:natlist,
+  true = beq_natlist l l.
+Proof.
+  assert(H: forall n: nat, beq_nat n n = true).
+  {
+    intros.
+    induction n.
+    - reflexivity.
+    - simpl. rewrite -> IHn. reflexivity.
+  }
+  
+  intros.
+  induction l.
+  - reflexivity.
+  - induction n. 
+  * simpl. rewrite <- IHl. reflexivity.
+  * simpl. destruct n. rewrite <- IHl. reflexivity. rewrite <- IHl. simpl. rewrite -> H. reflexivity.
+Qed.
+
+Fixpoint sum_natlist (l : natlist) : nat :=
+  match l with
+  | nil => 0
+  | cons n l' => n + sum_natlist l'
+  end.
+
+Fixpoint ones (n : nat) : natlist :=
+  match n with
+  | O => nil
+  | S n' => cons 1 (ones n')
+  end.
+
+Lemma sum_natlist_ones : forall n : nat,
+    sum_natlist (ones n) = n.
+Proof.
+  (* WORKED IN CLASS *)
+  induction n as [|n' IHn'].
+  - reflexivity.
+  - simpl. rewrite -> IHn'. reflexivity.
+Qed.
+
+Fixpoint zeros (n: nat) : natlist :=
+  match n with
+  | O => nil
+  | S n' => cons O (zeros n')
+  end.
+
+Compute sum_natlist (zeros 20) = 0.
+
+Fixpoint ntoone (n:nat) : natlist :=
+  match n with
+  | 0 => nil
+  | S n' => n :: (ntoone n')
+  end.
+
+Compute ntoone 10.
+
+Lemma sum_natlist_ntoone : forall n : nat,
+    2 * sum_natlist (ntoone n) = n * (n + 1).
+Proof.
+  assert(forall n: nat, S n = n + 1).
+  {
+    intros.
+    induction n.
+    - reflexivity.
+    - simpl. rewrite <- IHn. reflexivity. 
+  }
+
+  assert(forall n m: nat, S(n + m) = S n + m).
+  {
+    intros.
+    induction n.
+    - reflexivity.
+    - simpl. rewrite -> H. simpl. reflexivity.
+  }
+
+  assert(forall n m o: nat, S(n + m + o) = S n + m + o).
+  {
+    intros.
+    induction n.
+    - reflexivity.
+    - simpl. rewrite -> H0. simpl. reflexivity.
+  }
+
+  assert(forall m' n': nat, S(m' + n') = m' + S n'). 
+  {
+    intros.
+    induction m'.
+    - simpl. reflexivity.
+    - simpl. rewrite -> IHm'. reflexivity.
+  }
+
+  assert(forall n m: nat, n + m = m + n). {
+    intros.
+    induction n.
+    - simpl. induction m. reflexivity. simpl. rewrite <- IHm. reflexivity.
+    - simpl. rewrite -> IHn. 
+    rewrite -> H2. reflexivity.
+  }
+
+  assert(forall n m: nat, S n * m = m + n * m).
+  {
+    intros.
+    induction n.
+    - simpl. induction m. reflexivity. simpl. reflexivity.
+    - simpl. reflexivity.  
+  }
+
+  assert(forall n m: nat, n * S m = n + n * m).
+  {
+    assert(forall m' n' l': nat, m' + (n' + l') = n' + (m' + l')). {
+      intros.
+      induction m'.
+      - simpl. reflexivity.
+      - simpl. induction n'. reflexivity. rewrite IHm'. rewrite H2. reflexivity.
+    }
+    intros.
+    induction n.
+    - simpl. induction m. reflexivity. reflexivity.
+    - simpl. rewrite IHn. rewrite H5. reflexivity. 
+  }
+
+  assert(forall n m: nat, n * m = m * n).
+  {
+    intros.
+    induction n.
+    - induction m. reflexivity. simpl. rewrite <- IHm. simpl. reflexivity.
+    - simpl. rewrite IHn. rewrite <- H5. reflexivity.      
+  }
+
+   
+
+  intros.
+  induction n.
+  - simpl. reflexivity.
+  - simpl.
+Qed.
+
 
 
 
