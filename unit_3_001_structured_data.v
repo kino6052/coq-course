@@ -665,6 +665,14 @@ Proof.
     - simpl. rewrite IHn. rewrite H5. reflexivity. 
   }
 
+  assert (forall n: nat, n + 0 = n).
+  {
+    intros.
+    induction n.
+    - reflexivity.
+    - simpl. rewrite IHn. reflexivity.
+  }
+
   assert(forall n m: nat, n * m = m * n).
   {
     intros.
@@ -673,13 +681,94 @@ Proof.
     - simpl. rewrite IHn. rewrite <- H5. reflexivity.      
   }
 
-   
+  assert(forall b c d: nat, c + (b + d) = (c + b) + d).
+  {
+    intros.
+    induction c.
+    - simpl. reflexivity. 
+    - simpl. induction b.
+    * simpl. rewrite H6. reflexivity.
+    * simpl. rewrite <- IHc. reflexivity.
+  }
 
+  assert(forall b c d: nat, c + (b + d) = b + (c + d)).
+  {
+    intros.
+    induction c.
+    - simpl. reflexivity. 
+    - simpl. induction b.
+    * simpl. reflexivity.
+    * rewrite IHc. rewrite H2. reflexivity.  
+  }
+
+  assert(forall a b c d: nat, a + c + (b + d) = b + (a + (c + d))).
+  {
+    intros.
+    induction a.
+    - simpl. rewrite H9. reflexivity.
+    - simpl. induction c.
+    * simpl. rewrite H6. rewrite H9. rewrite H2. reflexivity.
+    * simpl. rewrite IHa. rewrite H2. rewrite <- H0. reflexivity.
+  }
+  
   intros.
   induction n.
   - simpl. reflexivity.
-  - simpl.
+  - simpl. rewrite H6. 
+  simpl in IHn. rewrite H6 in IHn. 
+  rewrite <- H2. rewrite H10. 
+  rewrite IHn. rewrite <- H5. 
+  rewrite <- H. rewrite H0. reflexivity.
 Qed.
+
+Lemma sum_natlist_rev : forall l : natlist,
+    sum_natlist l = sum_natlist (rev l).
+Proof.
+  assert (forall n: nat, n + 0 = n).
+  {
+    intros.
+    induction n.
+    - reflexivity.
+    - simpl. rewrite IHn. reflexivity.
+  }
+
+  assert(forall m' n': nat, S(m' + n') = m' + S n'). 
+  {
+    intros.
+    induction m'.
+    - simpl. reflexivity.
+    - simpl. rewrite -> IHm'. reflexivity.
+  }
+
+  assert(forall m' n' l': nat, m' + (n' + l') = (m' + n') + l'). {
+    intros.
+    induction m'.
+    - simpl. reflexivity.
+    - simpl. induction n'. rewrite H0. rewrite H. simpl. rewrite H0. reflexivity. rewrite IHm'. reflexivity.
+  }
+
+  assert (forall (l: natlist) (n: nat), sum_natlist (l ++ [n]) = sum_natlist(l) + sum_natlist([n])).
+  {
+    intros.
+    induction l.
+    - simpl. reflexivity.
+    - simpl. rewrite IHl. rewrite H1. simpl. reflexivity.  
+  }
+
+  assert(forall n m: nat, n + m = m + n). {
+    intros.
+    induction n.
+    - simpl. induction m. reflexivity. simpl. rewrite <- IHm. reflexivity.
+    - simpl. rewrite -> IHn. 
+    rewrite -> H0. reflexivity.
+  }
+
+  intros.
+  induction l.
+  - simpl. reflexivity.
+  - simpl. rewrite H2. simpl. rewrite IHl. rewrite H. rewrite H3. reflexivity. 
+Qed.
+
 
 
 
