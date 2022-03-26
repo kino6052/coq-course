@@ -141,7 +141,7 @@ Fixpoint nonzeros (l1:natlist) : natlist :=
   match l1 with
   | nil => nil
   | O :: t => nonzeros t
-  | h :: t => h :: nonzeros t
+  | h :: t => ([h]) ++ (nonzeros t)
   end.  
 
 Example test_nonzeros:
@@ -480,6 +480,40 @@ Proof.
   - simpl. reflexivity.
   - simpl. rewrite -> H. rewrite -> IHl. simpl. reflexivity. 
 Qed.
+
+Theorem app_assoc4 : forall l1 l2 l3 l4 : natlist,
+  l1 ++ (l2 ++ (l3 ++ l4)) = ((l1 ++ l2) ++ l3) ++ l4.
+Proof.
+  assert (H': forall l1 l2 l3 : natlist, (l1 ++ l2) ++ l3 = l1 ++ l2 ++ l3).
+  { 
+    intros.
+    induction l1.
+    - simpl. reflexivity.
+    - simpl. rewrite -> IHl1. reflexivity. 
+  }
+  
+  intros.
+  induction l1.
+  - simpl. rewrite -> H'. reflexivity.
+  - simpl. rewrite <- IHl1. reflexivity. 
+Qed.
+
+Lemma nonzeros_app : forall l1 l2 : natlist,
+  nonzeros (l1 ++ l2) = (nonzeros l1) ++ (nonzeros l2).
+Proof.
+  assert (H: forall (n: nat) (l1 l2: natlist), (n :: l1) ++ l2 = n::l1++l2).
+  {
+    intros.
+    induction l1.
+    - simpl. reflexivity.
+    - simpl. reflexivity.
+  }  
+  intros.
+  induction l1.
+  - simpl. reflexivity.
+  - rewrite H. simpl. destruct n. rewrite IHl1. reflexivity. simpl. rewrite IHl1. reflexivity.
+Qed.
+
 
 
 
