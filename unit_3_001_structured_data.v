@@ -340,6 +340,150 @@ Proof. simpl. reflexivity. Qed.
 Example test_subset2: subset [1;2;2] [2;1;4;1] = false.
 Proof. simpl. reflexivity. Qed.
 
+Theorem nil_app : forall l:natlist, l ++ [] = l.
+Proof. 
+intros.
+induction l.
+- reflexivity.
+(* Why was I able to rewrite? *)
+- simpl. rewrite -> IHl. reflexivity.
+Qed.
+
+Theorem tl_length_pred : forall l:natlist,
+  pred (length l) = length (tl l).
+Proof.
+  intros l. destruct l as [| n l'].
+  - (* l = nil *)
+    reflexivity.
+  - (* l = cons n l' *)
+    simpl. reflexivity. Qed.
+
+Theorem app_assoc : forall l1 l2 l3 : natlist,
+  (l1 ++ l2) ++ l3 = l1 ++ (l2 ++ l3).
+Proof.
+  intros l1 l2 l3. induction l1 as [| n l1' IHl1'].
+  - reflexivity.
+  - simpl. rewrite -> IHl1'. reflexivity. 
+Qed.
+
+Fixpoint rev (l:natlist) : natlist :=
+  match l with
+  | nil => nil
+  | h :: t => rev t ++ [h]
+  end.
+
+Example test_rev1: rev [1;2;3] = [3;2;1].
+Proof. simpl. reflexivity. Qed.
+
+Example test_rev2: rev nil = nil.
+Proof. reflexivity. Qed.
+
+Theorem rev_length : forall l : natlist,
+  length (rev l) = length l.
+Proof.
+  assert (H: forall l1 l2 : natlist, length (l1 ++ l2) = length l1 + length l2).
+  {
+    intros.
+    induction l1.
+    - reflexivity.
+    - simpl. rewrite -> IHl1. reflexivity.  
+  }
+
+  assert (H1': forall n m : nat, S (m + n) = m + S n).
+  {
+    intros.
+    induction m.
+    - simpl. reflexivity.
+    - simpl. rewrite -> IHm. reflexivity.
+  }
+
+  assert (H1: forall n m : nat, n + m = m + n).
+  {
+    intros.
+    induction n.
+    - simpl. induction m. reflexivity. simpl. rewrite <- IHm. reflexivity. 
+    - simpl. rewrite -> IHn. rewrite <- H1'. reflexivity.  
+  }
+
+  intros l. induction l as [| n l' IHl'].
+  - (* l =  *)
+    reflexivity.
+  - (* l = n :: l' *)
+    (* This is the tricky case.  Let's begin as usual
+       by simplifying. *)
+    simpl.
+    (* Now we seem to be stuck: the goal is an equality
+       involving ++, but we don't have any useful equations
+       in either the immediate context or in the global
+       environment!  We can make a little progress by using
+       the IH to rewrite the goal... *)
+    rewrite -> H. rewrite -> IHl'. simpl. rewrite -> H1. reflexivity.
+Qed.
+
+
+Theorem app_nil_r : forall l : natlist,
+  l ++ [] = l.
+Proof.
+  intros.
+  induction l.
+  - reflexivity.
+  - simpl. rewrite -> IHl. reflexivity.
+Qed.
+
+(* GRADE_THEOREM 0.5: NatList.app_nil_r *)
+Theorem rev_app_distr: forall l1 l2 : natlist,
+  rev (l1 ++ l2) = rev l2 ++ rev l1.
+Proof.
+  assert (H: forall l1 l2 l3 : natlist, (l1 ++ l2) ++ l3 = l1 ++ l2 ++ l3).
+  { 
+    intros.
+    induction l1.
+    - simpl. reflexivity.
+    - simpl. rewrite -> IHl1. reflexivity. 
+  }
+
+  intros.
+  induction l1.
+  - simpl. rewrite -> app_nil_r. reflexivity.
+  - simpl. rewrite -> IHl1. rewrite -> H.  reflexivity.
+Qed.
+
+Theorem rev_involutive : forall l : natlist,
+  rev (rev l) = l.
+Proof.
+  assert (H': forall l1 l2 l3 : natlist, (l1 ++ l2) ++ l3 = l1 ++ l2 ++ l3).
+  { 
+    intros.
+    induction l1.
+    - simpl. reflexivity.
+    - simpl. rewrite -> IHl1. reflexivity. 
+  }
+  
+  assert (H'': forall l : natlist, l ++ [ ] = l).
+  {
+    intros.
+    induction l.
+    - reflexivity.
+    - simpl. rewrite -> IHl. reflexivity.
+  }
+
+  assert (H: forall l1 l2 : natlist, rev(l1 ++ l2) = rev(l2) ++ rev(l1)).
+  {
+    intros.
+    induction l1.
+    - simpl. rewrite -> H''. reflexivity.
+    - simpl. rewrite -> IHl1. rewrite -> H'. reflexivity. 
+  }
+
+  intros.
+  induction l.
+  - simpl. reflexivity.
+  - simpl. rewrite -> H. rewrite -> IHl. simpl. reflexivity. 
+Qed.
+
+
+
+
 
 
 
