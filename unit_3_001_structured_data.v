@@ -210,6 +210,38 @@ Example test_alternate4:
   alternate [] [20;30] = [20;30].
 Proof. simpl. reflexivity. Qed.
 
+Definition bag := natlist.
+
+Fixpoint beq_nat (n m : nat) : bool :=
+  match n with
+  | O => match m with
+      | O => true
+      | S m' => false
+      end
+  | S n' =>
+      match m with
+      | O => false
+      | S m' => beq_nat n' m'
+      end
+  end.
+
+Compute beq_nat 5 5.
+
+Fixpoint count (v: nat) (s: bag) : nat :=
+  match s with
+  | nil => O
+  | h::t =>
+    match (beq_nat v h) with
+    | true => S (count v t)
+    | false => count v t
+    end 
+  end.
+
+Example test_count1: count 1 [1;2;3;1;4;1] = 3.
+Proof. simpl. reflexivity. Qed.
+
+Example test_count2: count 6 [1;2;3;1;4;1] = 0.
+Proof. simpl. reflexivity. Qed.
 
 
 
