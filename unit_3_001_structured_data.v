@@ -131,7 +131,55 @@ Proof. reflexivity. Qed.
 Example test_tl: tl [1;2;3] = [2;3].
 Proof. reflexivity. Qed.
 
+Fixpoint app' (l1 l2 : natlist) : natlist :=
+  match l1 with
+  | nil => l2
+  | h :: t => h :: (app' t l2)
+  end.
 
+Fixpoint nonzeros (l1:natlist) : natlist :=
+  match l1 with
+  | nil => nil
+  | O :: t => nonzeros t
+  | h :: t => h :: nonzeros t
+  end.  
+
+Example test_nonzeros:
+  nonzeros [0;1;0;2;3;0;0] = [1;2;3].
+Proof. simpl. reflexivity. Qed.
+
+Fixpoint evenb (n: nat): bool :=
+  match n with
+  | O => true
+  | S O => false
+  | S (S n') => evenb n'
+  end.
+
+Fixpoint oddmembers (l:natlist) : natlist :=
+  match l with
+  | nil => nil
+  | n :: t =>
+    match evenb n with
+    | true => oddmembers t
+    | false => n :: oddmembers t
+    end
+  end.
+Example test_oddmembers:
+  oddmembers [0;1;0;2;3;0;0] = [1;3].
+Proof. simpl. reflexivity. Qed.
+
+(* GRADE_THEOREM 0.5: NatList.test_oddmembers *)
+Definition countoddmembers (l:natlist) : nat
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Example test_countoddmembers1:
+  countoddmembers [1;0;3;1;4;5] = 4.
+  (* FILL IN HERE *) Admitted.
+Example test_countoddmembers2:
+  countoddmembers [0;2;4] = 0.
+  (* FILL IN HERE *) Admitted.
+Example test_countoddmembers3:
+  countoddmembers nil = 0.
+  (* FILL IN HERE *) Admitted.
 
 
 
