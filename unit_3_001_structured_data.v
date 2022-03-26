@@ -243,8 +243,93 @@ Proof. simpl. reflexivity. Qed.
 Example test_count2: count 6 [1;2;3;1;4;1] = 0.
 Proof. simpl. reflexivity. Qed.
 
+Definition sum : bag -> bag -> bag := app.
+  
 
+Example test_sum1: count 1 (sum [1;2;3] [1;4;1]) = 3.
+Proof. simpl. reflexivity. Qed. 
 
+Definition add (v:nat) (s:bag) : bag := app [v] s.
+
+Example test_add1: count 1 (add 1 [1;4;1]) = 3.
+Proof. simpl. reflexivity. Qed.
+
+Example test_add2: count 5 (add 1 [1;4;1]) = 0.
+Proof. simpl. reflexivity. Qed.
+
+Fixpoint geb (n m : nat) : bool :=
+  match m with
+  | O => true
+  | S m' =>
+      match n with
+      | O => false
+      | S n' => geb n' m'
+      end
+  end.
+
+Compute geb 1 1.
+Compute geb 0 1.
+Compute geb 1 0.
+
+Definition member (v:nat) (s:bag) : bool := geb (count v s) 1.
+
+Example test_member1: member 1 [1;4;1] = true.
+Proof. simpl. reflexivity. Qed.
+
+Example test_member2: member 2 [1;4;1] = false.
+Proof. simpl. reflexivity. Qed.
+
+Fixpoint remove_one (v:nat) (s:bag) : bag :=
+  match s with
+  | nil => nil
+  | h::t =>
+    match beq_nat h v with
+      | true => t
+      | false => h::(remove_one v t)
+    end 
+  end.
+
+Example test_remove_one1:
+  count 5 (remove_one 5 [2;1;5;4;1]) = 0.
+Proof. simpl. reflexivity. Qed.
+Example test_remove_one2:
+  count 5 (remove_one 5 [2;1;4;1]) = 0.
+Proof. simpl. reflexivity. Qed.
+Example test_remove_one3:
+  count 4 (remove_one 5 [2;1;4;5;1;4]) = 2.
+Proof. simpl. reflexivity. Qed.
+Example test_remove_one4:
+  count 5 (remove_one 5 [2;1;5;4;5;1;4]) = 1.
+Proof. simpl. reflexivity. Qed.
+
+Fixpoint remove_all (v:nat) (s:bag) : bag :=
+  match s with
+  | nil => nil
+  | h::t =>
+    match beq_nat h v with
+      | true => remove_all v t
+      | false => h::(remove_all v t)
+    end 
+  end.
+
+Example test_remove_all1: count 5 (remove_all 5 [2;1;5;4;1]) = 0.
+Proof. simpl. reflexivity. Qed.
+
+Example test_remove_all2: count 5 (remove_all 5 [2;1;4;1]) = 0.
+Proof. simpl. reflexivity. Qed.
+
+Example test_remove_all3: count 4 (remove_all 5 [2;1;4;5;1;4]) = 2.
+Proof. simpl. reflexivity. Qed.
+
+Example test_remove_all4: count 5 (remove_all 5 [2;1;5;4;5;1;4;5;1;4]) = 0.
+Proof. simpl. reflexivity. Qed.
+
+Fixpoint subset (s1:bag) (s2:bag) : bool
+  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Example test_subset1: subset [1;2] [2;1;4;1] = true.
+ (* FILL IN HERE *) Admitted.
+Example test_subset2: subset [1;2;2] [2;1;4;1] = false.
+ (* FILL IN HERE *) Admitted.
 
 
 
