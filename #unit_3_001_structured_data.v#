@@ -1089,3 +1089,55 @@ Proof.
   - rewrite <- H0. rewrite H. reflexivity.
 Qed.
 
+Module PartialMap.
+Inductive partial_map : Type :=
+  | empty : partial_map
+  | record : id -> nat -> partial_map -> partial_map.
+Definition example_map : partial_map := record (Id 5) 24 (record (Id 4) 23 empty).
+
+Definition update (d : partial_map)
+                  (x : id) (value : nat)
+                  : partial_map :=
+  record x value d.
+
+Fixpoint find (x : id) (d : partial_map) : natoption :=
+  match d with
+  | empty => None
+  | record y v d' => if beq_id x y
+                     then Some v
+                     else find x d'
+  end.
+Compute (find (Id 5) example_map).
+Compute (find (Id 4) example_map).
+Compute (find (Id 3) example_map).
+
+Theorem update_eq :
+  forall (d : partial_map) (x : id) (v: nat),
+    find x (update d x v) = Some v.
+Proof.
+  assert (forall n: nat, beq_nat n n = true).
+  {
+    intros.
+    induction n.
+    - simpl. reflexivity.
+    - simpl. rewrite IHn. reflexivity.
+  }
+  intros.
+  induction d.
+  - simpl. induction x. simpl. rewrite H. reflexivity.
+  - simpl. induction x. simpl. rewrite H. reflexivity.  
+Qed.
+
+Theorem update_neq :
+  forall (d : partial_map) (x y : id) (o: nat),
+    beq_id x y = false -> find x (update d y o) = find x d.
+Proof.
+  intros.
+  induction d.
+  - simpl. induction x. rewrite H. reflexivity.
+  - simpl. induction x. rewrite H. reflexivity.
+Qed.
+
+Inductive baz : Type :=
+  | Baz1 : baz -> baz
+  | Baz2 : baz -> bool -> baz.
