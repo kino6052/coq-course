@@ -281,6 +281,195 @@ Example test_filter2':
   = [ [3]; [4]; [8] ].
 Proof. reflexivity. Qed.
 
+Definition filter_even_gt7 (l : list nat) : list nat :=
+  filter (fun i => if evenb i then blt_nat 7 i else false) l.
+
+Compute filter_even_gt7 [1;2;6;9;10;3;12;8].
+
+Example test_filter_even_gt7_1 :
+  filter_even_gt7 [1;2;6;9;10;3;12;8] = [10;12;8].
+Proof. simpl. reflexivity. Qed.
+
+Example test_filter_even_gt7_2 :
+  filter_even_gt7 [5;2;6;19;129] = [].
+Proof. simpl. reflexivity. Qed.
+
+Definition partition {X : Type}
+                     (test : X -> bool)
+                     (l : list X)
+                   : list X * list X :=
+  (filter (test) l, filter (fun i => negb(test i)) l).
+
+Example test_partition1: partition oddb [1;2;3;4;5] = ([1;3;5], [2;4]).
+Proof. simpl. reflexivity. Qed.
+
+Example test_partition2: partition (fun x => false) [5;9;0] = ([], [5;9;0]).
+Proof. simpl. reflexivity. Qed.
+
+Fixpoint map {X Y:Type} (f:X->Y) (l:list X) : (list Y) :=
+  match l with
+  | [] => []
+  | h :: t => (f h) :: (map f t)
+  end.
+
+Example test_map1: map (fun x => plus 3 x) [2;0;2] = [5;3;5].
+Proof. reflexivity. Qed.
+
+Example test_map2:
+  map oddb [2;1;2;5] = [false;true;false;true].
+Proof. reflexivity. Qed.
+
+Example test_map3:
+    map (fun n => [evenb n;oddb n]) [2;1;2;5]
+  = [[true;false];[false;true];[true;false];[false;true]].
+Proof. reflexivity. Qed.
+
+Lemma map_length :
+  forall A B (f:A->B) (l:list A),
+    length (map f l) = length l.
+Proof.
+  intros.
+  induction l.
+  - simpl. reflexivity.
+  - simpl. rewrite IHl. reflexivity.
+Qed.
+
+
+Theorem map_rev : forall (X Y : Type) (f : X -> Y) (l : list X),
+  map f (rev l) = rev (map f l).
+Proof.
+  assert(forall (X Y : Type) (x: X) (l: list X) (f: X -> Y), map f (l ++ [x]) = map f (l) ++ [f x]).
+  {
+    intros.
+    induction l.
+    - simpl. reflexivity.
+    - simpl. rewrite IHl. reflexivity.
+  }
+  intros.
+  induction l.
+  - simpl. reflexivity.
+  - simpl. rewrite <- IHl. rewrite H. reflexivity. 
+Qed.
+
+
+Fixpoint flat_map {X Y:Type} (f:X -> list Y) (l:list X)
+                   : (list Y) :=
+  match l with
+  | nil => nil
+  | h::t => (f h) ++ (flat_map f t) 
+  end.
+
+Example test_flat_map1:
+  flat_map (fun n => [n;n;n]) [1;5;4]
+  = [1; 1; 1; 5; 5; 5; 4; 4; 4].
+Proof. reflexivity. Qed.
+
+Definition option_map {X Y : Type} (f : X -> Y) (xo : option X)
+                      : option Y :=
+  match xo with
+    | None => None
+    | Some x => Some (f x)
+  end.
+
+Definition option_elim {X: Type} (d : X) (o : option X) : X :=
+  match o with
+  | Some n' => n'
+  | None => d
+  end.
+
+(* Definition map_option {X : Type} (f : X -> option X) (l: list X) : (list X) :=
+  filter (fun i => match (f i) with
+    | None => false
+    | _ => true
+    end
+  ) l.
+
+Lemma map_option_lemma: forall { X Y: Type} (l: list (option X)), map_option (fun x => Some x) l = l.
+Proof.
+  intros.
+  induction l.
+  - simpl. reflexivity.
+  - simpl. rewrite <- IHl. simpl.
+Qed.
+*)
+
+Fixpoint fold {X Y:Type} (f: X->Y->Y) (l:list X) (b:Y)
+                         : Y :=
+  match l with
+  | nil => b
+  | h :: t => f h (fold f t b)
+  end.
+
+Compute fold plus [1;2;3;4] 0.
+
+Compute fold mult [1;2;3;4] 1.
+
+Definition constfun {X: Type} (x: X) : nat->X :=
+  fun (k:nat) => x.
+
+Definition ftrue := constfun true.
+Example constfun_example1 : ftrue 10 = true.
+Proof.
+  reflexivity.
+Qed.
+
+Example constfun_example2 : (constfun 5) 99 = 5.
+Proof.
+  reflexivity.
+Qed.
+
+Compute plus 1 3.
+
+Definition plus3 := plus 3.
+Check plus3.
+Example test_plus3 : plus3 4 = 7.
+Proof. reflexivity. Qed.
+Example test_plus3' : doit3times plus3 0 = 9.
+Proof. reflexivity. Qed.
+Example test_plus3'' : doit3times (plus 3) 0 = 9.
+Proof. reflexivity. Qed.
+
+Definition fold_length {X : Type} (l : list X) : nat :=
+  fold (fun _ n => S n) l 0.
+Compute fold_length [4;7;0].
+
+Example test_fold_length1 : fold_length [4;7;0] = 3.
+Proof. reflexivity. Qed.
+
+Theorem fold_length_correct : forall X (l : list X),
+  fold_length l = length l.
+Proof.
+  intros.
+  induction l.
+  - simpl. reflexivity.
+  - simpl. rewrite <- IHl. reflexivity.
+Qed.
+
+Fixpoint sum (l : list nat) : nat :=
+  match l with
+  | nil => O
+  | h :: t => plus h (sum t)
+  end.
+
+Definition sum' (l : list nat) : nat :=
+  fold plus l O. 
+
+Compute sum [1;2;5].
+Compute sum' [1;2;5].
+
+Theorem sum_sum' : forall (l : list nat),
+  sum l = sum' l.
+Proof.
+  intros.
+  induction l.
+  - reflexivity.
+  - simpl. rewrite IHl. reflexivity. 
+Qed.
+
+
+
+
+
 
 
 
