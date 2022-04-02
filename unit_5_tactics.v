@@ -389,4 +389,17 @@ Proof.
       apply IHm'. inversion eq. reflexivity. 
 Qed.
 
+Theorem nth_error_after_last: forall (n : nat) (l : natlist),
+     length l = n ->
+     nth_error l n = None.
+Proof.
+  intros n.
+  induction n.
+  - destruct l. 
+    + simpl. reflexivity.
+    + intros. inversion H.
+  - destruct l.
+    + simpl. reflexivity.
+    + intros. inversion H. simpl. rewrite H1. rewrite IHn. reflexivity. apply H1.
+Qed.
 
