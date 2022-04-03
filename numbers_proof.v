@@ -89,9 +89,16 @@ Proof.
 Qed.
 *)
 
-Theorem inf_nat_filter': forall (m: nat), exists (n: nat), grb n m = true /\ ~ exists (k: nat), 2 * k = n.
+Definition prop' (m n k: nat) := forall (m: nat), exists (n: nat), grb n m = true /\ ~ exists (k: nat), 2 * k = n.
+Check prop'.
+
+Definition hasFactor (f n: nat) := true.
+
+Theorem inf_nat_filter': forall (m n k: nat), hasFactor 2 m = true -> prop' m n k /\ hasFactor 2 m = false -> prop' m n k.  
 Proof.
   intros m.
+  induction m.
+  - 
   induction m.
   - exists 1. unfold not. split.
     + simpl. reflexivity.
