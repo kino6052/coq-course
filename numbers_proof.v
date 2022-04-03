@@ -51,6 +51,44 @@ Proof.
   - intros. apply IHx. destruct x. inversion H. inversion H. 
 Qed.
 
+(* This black magic proof should be referred back to a lot. 
+   important to note that intros moves LHS from the goal to the context.
+   somehow I didn't understand that completely, all this time.
+*)
+(*
+Theorem plus_n_n_injective : forall n m,
+     n + n = m + m ->
+     n = m.
+Proof.
+  intros n. induction n as [| n'].  
+  (* question: how can we just destruct m, if we haven't introduced it? 
+   * answer from lolisa on #coq: destruct introduces m, and all variables that come before it. *)
+  Case "n=0".
+  destruct m.
+    SCase "m=0". intro H. reflexivity.
+    SCase "m>0". 
+      (* cleverly not introducing the hypothesis until later. *)
+      simpl. intro contra. inversion contra.
+  Case "n>0".
+  destruct m as [|m'].
+    SCase "m=0". intros contra. inversion contra.
+    SCase "m>0".
+      intro H.
+      apply eq_remove_S.
+      (* here is some magic trick:
+        applying a hypothesis with an assumption moves the assumption to the goal. 
+        but it can only be done when your goal matches whats on the RHS of that assumption.
+        this really makes sense though: 
+          if you know A -> B, and you need to prove B, 
+          then if you can prove A, you're good.  
+            (also if you can disprove A, i guess, but that doesn't apply here).
+      *)
+      apply IHn'.
+      (* in the rest, nothing really interesting happens. *)
+     simpl in H. inversion H. rewrite <- plus_n_Sm in H1. rewrite <- plus_n_Sm in H1. inversion H1. reflexivity.
+Qed.
+*)
+
 Theorem inf_nat_filter': forall (m: nat), exists (n: nat), grb n m = true /\ ~ exists (k: nat), 2 * k = n.
 Proof.
   intros m.
