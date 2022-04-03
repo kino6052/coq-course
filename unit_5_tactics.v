@@ -403,3 +403,134 @@ Proof.
     + intros. inversion H. simpl. rewrite H1. rewrite IHn. reflexivity. apply H1.
 Qed.
 
+Definition square n := n * n.
+
+(* 
+Lemma square_mult : forall n m, square (n * m) = square n * square m.
+Proof.
+  intros n m.
+  unfold square.
+  Search (_ * _).
+*)
+
+Definition bar x :=
+  match x with
+  | O => 5
+  | S _ => 5
+  end.
+
+Fact silly_fact_2 : forall m, bar m + 1 = bar (m + 1) + 1.
+Proof.
+  intros m.
+  destruct m.
+  - simpl. reflexivity.
+  - simpl. reflexivity.
+Qed.
+
+Fact silly_fact_2' : forall m, bar m + 1 = bar (m + 1) + 1.
+Proof.
+  intros m.
+  unfold bar.
+  destruct m.
+  - reflexivity.
+  - reflexivity.
+Qed.
+
+Definition sillyfun (n : nat) : bool :=
+  if beq_nat n 3 then false
+  else if beq_nat n 5 then false
+  else false.
+
+Theorem sillyfun_false : forall (n : nat),
+  sillyfun n = false.
+Proof.
+  intros n. unfold sillyfun.
+  destruct (beq_nat n 3).
+    - (* beq_nat n 3 = true *) reflexivity.
+    - (* beq_nat n 3 = false *) destruct (beq_nat n 5).
+      + (* beq_nat n 5 = true *) reflexivity.
+      + (* beq_nat n 5 = false *) reflexivity. Qed.
+
+(* Fixpoint split {X Y : Type} (l : list (X*Y))
+               : (list X) * (list Y) :=
+  match l with
+  | [] => ([], [])
+  | (x, y) :: t =>
+      match split t with
+      | (lx, ly) => (x :: lx, y :: ly)
+      end
+  end. *)
+
+Definition sillyfun1 (n : nat) : bool :=
+  if beq_nat n 3 then true
+  else if beq_nat n 5 then true
+  else false.
+
+Theorem sillyfun1_odd : forall (n : nat),
+     sillyfun1 n = true ->
+     oddb n = true.
+Proof.
+  intros n eq. unfold sillyfun1 in eq.
+  destruct (beq_nat n 3) eqn:Heqe3.
+  (* Now we have the same state as at the point where we got
+     stuck above, except that the context contains an extra
+     equality assumption, which is exactly what we need to
+     make progress. *)
+    - (* e3 = true *) apply beq_nat_true in Heqe3.
+      rewrite -> Heqe3. reflexivity.
+    - (* e3 = false *)
+     (* When we come to the second equality test in the body
+        of the function we are reasoning about, we can use
+        eqn: again in the same way, allow us to finish the
+        proof. *)
+      destruct (beq_nat n 5) eqn:Heqe5.
+        + (* e5 = true *)
+          apply beq_nat_true in Heqe5.
+          rewrite -> Heqe5. reflexivity.
+        + (* e5 = false *) inversion eq. Qed.
+
+Theorem bool_fn_applied_thrice' :
+  forall (f : bool -> bool) (b : bool),
+  f (f (f b)) = f b.
+Proof.
+  intros.
+  destruct (f true) eqn:FT.
+  - destruct (f false) eqn:FF.
+    + destruct b.
+      * rewrite FT. rewrite FT. rewrite FT. reflexivity.
+      * rewrite FF. rewrite FT. rewrite FT. reflexivity.
+    + destruct b.
+      * rewrite FT. rewrite FT. rewrite FT. reflexivity.
+      * rewrite FF. rewrite FF. rewrite FF. reflexivity.
+  - destruct (f false) eqn:FF.
+    + destruct b.
+      * rewrite FT. rewrite FF. rewrite FT. reflexivity.
+      * rewrite FF. rewrite FT. rewrite FF. reflexivity.
+    + destruct b.
+      * rewrite FT. rewrite FF. rewrite FF. reflexivity.
+      * rewrite FF. rewrite FF. rewrite FF. reflexivity.
+Qed.
+
+Theorem bool_fn_applied_thrice :
+  forall (f : bool -> bool) (b : bool),
+  f (f (f b)) = f b.
+Proof.
+  intros.
+  destruct (f true) eqn: fb.
+  * destruct (f false) eqn: fb'.
+    - destruct b.
+      + rewrite fb. rewrite fb. rewrite fb. reflexivity.
+      + rewrite fb'. rewrite fb. rewrite fb. reflexivity.
+    - destruct b.
+      + rewrite fb. rewrite fb. rewrite fb. reflexivity.
+      + rewrite fb'. rewrite fb'. rewrite fb'. reflexivity.
+  * destruct (f false) eqn: fb'.  
+    - destruct b.
+      + rewrite fb. rewrite fb'. rewrite fb. reflexivity.
+      + rewrite fb'. rewrite fb. rewrite fb'. reflexivity.
+    - destruct b.
+      + rewrite fb. rewrite fb'. rewrite fb'. reflexivity.
+      + rewrite fb'. rewrite fb'. rewrite fb'. reflexivity. 
+Qed.
+
+
