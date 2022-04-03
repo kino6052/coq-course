@@ -1,10 +1,10 @@
-Fixpoint leb (n m : nat) : bool :=
+Fixpoint grb (n m : nat) : bool :=
   match n with
-  | O => true
+  | O => false
   | S n' =>
       match m with
-      | O => false
-      | S m' => leb n' m'
+      | O => true
+      | S m' => grb n' m'
       end
   end.
   
@@ -13,21 +13,21 @@ Definition negb (b: bool) : bool :=
   | true => false
   | false => true
   end.
-
-Definition grb (n m : nat) : bool :=
-  leb m n.
   
 Example test_blt_nat1: grb 2 0 = true.
 Proof. simpl. reflexivity. Qed.
 
 
-Example test_blt_nat2: (leb 2 4) = true.
+Example test_blt_nat2: (grb 2 2) = false.
 Proof. simpl. reflexivity. Qed.
 
-Example test_blt_nat3: (leb 2 2) = true.
+Example test_blt_nat3: (grb 2 1) = true.
 Proof. simpl. reflexivity. Qed.
 
-Theorem t': forall (n: nat), grb n n = true.
+Example test_blt_nat4: (grb 2 3) = false.
+Proof. simpl. reflexivity. Qed.
+
+Theorem t': forall (n: nat), grb (S n) n = true.
 Proof.
   intros.
   induction n.
@@ -41,9 +41,10 @@ Proof.
   intros m.
   induction m.
   - exists 1. simpl. reflexivity.
-  - exists (S m). simpl. induction m.
+  - exists (m + 2). simpl. induction m.
     + simpl. reflexivity.
     + simpl. rewrite IHm0. 
       * reflexivity. 
-      * exists (m). apply t'.
+      * exists (S m). apply t'.
 Qed.
+
