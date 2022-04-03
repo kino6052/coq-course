@@ -41,7 +41,7 @@ Proof.
   intros m.
   induction m.
   - exists 1. simpl. reflexivity.
-  - exists (m + 2). simpl. induction m.
+  - exists (S m). simpl. induction m.
     + simpl. reflexivity.
     + simpl. rewrite IHm0. 
       * reflexivity. 
